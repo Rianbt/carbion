@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    background-color: #FFF9CD;
+    font-family: "Montserrat", sans-serif;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 1.5%;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    width: 102%;
+    height: auto;
+}
+
+.headerItens a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: black;
+    font-size: 105%;
+    font-weight: 550;
+    position: relative;
+}
+.headerItens a::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 10%;
+    background-color: #18272F;
+    bottom: 0;
+    left: 0;
+    transform-origin: right;
+    transform: scaleX(0);
+    transition: transform .3s ease-in-out;
+}
+.headerItens a:hover::before {
+    transform-origin: left;
+    transform: scaleX(1);
+}
+
+.botaoLogin {
+  background: transparent;
+  padding: 17% 90% 17% 90%;
+  font-family: "Montserrat", sans-serif;   
+  font-size: 105%;
+  font-weight: 250;    
+  border: 0.5px solid #000;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: .4s ease;
+  margin-left: -180%;
+}
+
+.botaoLogin:hover {
+ border: 0.5px solid #000;
+  color: #FFF9CD;
+  background-color: #191013;
+  transition: .4s ease;
+}
+
+.sec1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.title {
+  font-size: 1000%;
+  font-weight: 200;
+  margin-bottom: 3%;
+  margin-top: 8%;
+}
+.botoes {
+  display: flex;
+  gap: 20%;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5%;
+}
+.botoes input[type="button"] {
+  font-family: "Montserrat", sans-serif;   
+  font-weight: 500;
+  padding: 3% 30% 3% 30%;
+  border-radius: 7px;
+  border: none;
+  font-size: 130%;
+  cursor: pointer;
+}
+.saibaMais {
+  background-color: #11644D;
+  color: #B6C474;
+}
+.servicos {
+  background-color: #191013;
+  color: #FFF9CD;
+}
+
+.section_divisor {
+  width: 80%;
+  text-align: center;
+}
+.mini_line_divisor {
+  width: 100%;
+  text-align: center;
+}
+
+.sec2_paragrafos_unidades {
+  margin-bottom: 2rem;
+}
+
+.sec3_paragrafos_ {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+.sec3_paragrafos_unidade {
+  flex: 1;
+}
+
+.sec4_paragrafos_ {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+.sec4_paragrafos_unidade {
+  flex: 1;
+}
+
+footer {
+  margin-top: 3rem;
+  padding: 2rem 0;
+  background: #f5f5e6;
+  text-align: center;
+}
+
+.lista1_footer, .lista2_footer, .lista3_footer {
+  display: inline-block;
+  margin: 0 2rem;
+  vertical-align: top;
+}
+
+.lista1_footer a,
+.lista2_footer a,
+.lista3_footer a {
+  display: block;
+  color: #222;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+}
+
+.icons {
+  margin: 1rem 0;
+}
+.icons a {
+  margin: 0 0.5rem;
+}
