@@ -21,11 +21,14 @@ app.get('/', (req, res) => {
 });
 
 // private route - precisa de token
-app.get('/user/:id', async (req, res) => {
+app.get('/user/:id', checkToken, async (req, res) => {
     const id = req.params.id;
 
-    // checar se o usuario existe
-    const user = await User.findById(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({msg: 'ID inválido'});
+    }
+
+    const user = await User.findById(id).select('-password -__v');
     if(!user) {
         return res.status(404).json({msg: 'Usuário não encontrado'});
     }
@@ -54,11 +57,9 @@ function checkToken(req, res, next) {
 
 //login route
 app.post('/auth/login', async (req, res) => {
+    const {email, password} = req.body;
 
-    const {email, password, name} = req.body;
-
-    //validações
-    if(!email || !password || !name) {
+    if(!email || !password) {
         return res.status(400).json({msg: 'Todos os campos são obrigatórios'});
     }
 
@@ -104,6 +105,12 @@ app.post('/auth/register', async (req, res) => {
         return res.status(400).json({msg: 'Todos os campos são obrigatórios'});
     }
 
+    // validação de formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!emailRegex.test(email)) {
+        return res.status(400).json({msg: 'E-mail inválido'});
+    }
+
     if(password !== confirmpassword) {
         return res.status(400).json({msg: 'As senhas não conferem'});
     }
@@ -130,7 +137,7 @@ app.post('/auth/register', async (req, res) => {
         await user.save();
         res.status(201).json({msg: 'Usuário registrado com sucesso'});
     } catch (error) {
-        res.status(500).json({msg: 'Erro ao registrar usuário'});
+        res.status(500).json({msg: 'Erro ao registrar usuário', error: error.message});
     }
 });
 
@@ -138,8 +145,11 @@ app.post('/auth/register', async (req, res) => {
 const dbUser = process.env.DB_USER
 const dbPassword = process.env.DB_PASS
 
-mongoose.connect(`mongodb+srv://${dbUser}:${dbPassword}@cluster0.j6zsxa5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`).then(() => {
-}).catch((err) => console.log(err));
+mongoose.connect(`mongodb+srv://${dbUser}:${dbPassword}@cluster0.j6zsxa5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`)
+  .then(() => {
+    console.log('Conectado ao MongoDB');
+  })
+  .catch((err) => console.log(err));
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
