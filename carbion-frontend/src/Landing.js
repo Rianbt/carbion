@@ -27,9 +27,10 @@ export default function Home() {
       </section>
 
       <section className="sec2">
-        <h1>Lorem</h1>
-        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nam alias assumenda optio sapiente officiis exercitationem ratione, vel praesentium laboriosam aut qui totam voluptates autem porro. Velit dolore rem doloribus corporis! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Illo magnam architecto, maiores ducimus nihil placeat veniam sed est, ratione exercitationem nam ad, ullam laudantium soluta! Atque laudantium aspernatur non! Vitae.</p>
-
+        <div class="sec2_introducao">
+        <h1 class="sec2_tit">Lorem</h1>
+        <p class="sec2_paragrafo">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nam alias assumenda optio sapiente officiis exercitationem ratione, vel praesentium laboriosam aut qui totam voluptates autem porro. Velit dolore rem doloribus corporis! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Illo magnam architecto, maiores ducimus nihil placeat veniam sed est, ratione exercitationem nam ad, ullam laudantium soluta! Atque laudantium aspernatur non! Vitae.</p>
+</div>
         <div className="sec2_paragrafos_unidades">
           <hr className="mini_line_divisor" />
           <h2>Lorem</h2>
