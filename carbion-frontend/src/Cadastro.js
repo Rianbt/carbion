@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
+<<<<<<< HEAD
 import './Login.css'; // Reutilizando o CSS do Login (assumindo que é compartilhado)
 import { useNavigate } from 'react-router-dom';
 import { auth } from './firebase'; // Importe a configuração do Firebase (mesma do Login)
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'; // Adicionado updateProfile à importação
+=======
+import './Login.css';
+import { useNavigate } from 'react-router-dom';
+>>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3
 
 const API_URL = 'http://localhost:3001';
 
@@ -19,7 +24,11 @@ export default function Cadastro() {
     e.preventDefault();
     setMsg('');
     
+<<<<<<< HEAD
     // Validações básicas (mantidas)
+=======
+    // Validações básicas
+>>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3
     if (!name || !email || !password || !confirmPassword) {
       setMsg('Todos os campos são obrigatórios');
       return;
@@ -33,6 +42,7 @@ export default function Cadastro() {
     setLoading(true);
 
     try {
+<<<<<<< HEAD
       // Registro via Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       // Opcional: Atualizar displayName no Firebase
@@ -48,6 +58,28 @@ export default function Cadastro() {
       setTimeout(() => navigate('/login'), 2000); // Delay para mostrar mensagem
     } catch (err) {
       setMsg('Erro ao realizar cadastro: ' + err.message);
+=======
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, confirmpassword: confirmPassword })
+      });
+      
+      const data = await res.json();
+      
+      if (res.ok) {
+        setMsg('Cadastro realizado com sucesso!');
+        // Limpa os campos após cadastro bem-sucedido
+        setName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+      } else {
+        setMsg(data.msg || 'Erro ao realizar cadastro');
+      }
+    } catch (err) {
+      setMsg('Erro de conexão com o servidor');
+>>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3
     }
     
     setLoading(false);
@@ -185,4 +217,8 @@ export default function Cadastro() {
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3

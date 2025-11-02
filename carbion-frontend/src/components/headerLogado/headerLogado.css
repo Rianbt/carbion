@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 *{
 font-family: "Montserrat", sans-serif;
@@ -45,4 +46,53 @@ header {
 .headerItens a:hover::before {
     transform-origin: left;
     transform: scaleX(1);
+=======
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+*{
+font-family: "Montserrat", sans-serif;
+}
+body {
+    background-color: #FFF9CD;
+    font-family: "Montserrat", sans-serif;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 1.5%;
+}
+
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    width: 102%;
+    height: auto;
+}
+
+.headerItens a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: black;
+    font-size: 105%;
+    font-weight: 550;
+    position: relative;
+}
+.headerItens a::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 10%;
+    background-color: #18272F;
+    bottom: 0;
+    left: 0;
+    transform-origin: right;
+    transform: scaleX(0);
+    transition: transform .3s ease-in-out;
+}
+.headerItens a:hover::before {
+    transform-origin: left;
+    transform: scaleX(1);
+>>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3
 }

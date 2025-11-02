@@ -20,16 +20,27 @@
   "homepage": "https://github.com/Rianbt/carbion#readme",
   "description": "",
   "dependencies": {
+<<<<<<< HEAD
     "axios": "^1.13.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
+=======
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+>>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3
     "express": "^5.1.0",
     "express-rate-limit": "^8.2.1",
     "firebase-admin": "^13.5.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+<<<<<<< HEAD
     "react-router-dom": "^7.9.2",
     "yahoo-finance2": "^3.10.0"
+=======
+    "mongoose": "^8.18.2",
+    "react-router-dom": "^7.9.2"
+>>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

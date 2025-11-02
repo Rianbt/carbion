@@ -1,5 +1,6 @@
 // server.js
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 import express from 'express';
@@ -11,7 +12,7 @@ import axios from 'axios';
 import yahooFinance from 'yahoo-finance2';
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = 3000;
 
 app.use(cors());
 app.use(express.json());
