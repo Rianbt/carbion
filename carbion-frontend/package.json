@@ -8,7 +8,6 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "cors": "^2.8.5",
-<<<<<<< HEAD
     "firebase": "^12.5.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
@@ -17,13 +16,6 @@
     "react-scripts": "5.0.1",
     "react-scroll": "^1.9.3",
     "recharts": "^3.3.0",
-=======
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.2",
-    "react-scripts": "5.0.1",
-    "react-scroll": "^1.9.3",
->>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3
     "web-vitals": "^2.1.4"
   },
   "scripts": {

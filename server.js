@@ -1,6 +1,5 @@
 // server.js
 import dotenv from 'dotenv';
-
 dotenv.config();
 
 import express from 'express';
@@ -9,12 +8,23 @@ import rateLimit from 'express-rate-limit';
 import cors from 'cors';
 import admin from 'firebase-admin';
 import axios from 'axios';
-import yahooFinance from 'yahoo-finance2';
 
 const app = express();
-const port = 3000;
+const port = 3001;
 
-app.use(cors());
+// --- CORS configurado corretamente ---
+const allowedOrigins = ['http://localhost:3000']; // frontend
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Origin não permitida'));
+    }
+  },
+  credentials: true // permite cookies e headers de autenticação
+}));
+
 app.use(express.json());
 app.use(helmet());
 
@@ -76,7 +86,7 @@ app.get('/', (req, res) => {
   res.json({ ok: true, env: process.env.NODE_ENV || 'development' });
 });
 
-// Chart data
+// --- Chart data ---
 app.get('/api/chart-data', checkToken, async (req, res) => {
   try {
     const uid = req.user.uid;
@@ -94,7 +104,7 @@ app.get('/api/chart-data', checkToken, async (req, res) => {
       return res.json(data);
     }
 
-    // fallback: últimos 6 meses com valores aleatórios
+    // fallback: últimos 6 meses
     const now = new Date();
     const sample = [];
     for (let i = 5; i >= 0; i--) {
@@ -108,7 +118,7 @@ app.get('/api/chart-data', checkToken, async (req, res) => {
   }
 });
 
-// ROI endpoint (Yahoo Finance com ROI ajustado pelo tempo)
+// --- ROI endpoint ---
 app.get('/api/roi/:symbol', checkToken, async (req, res) => {
   try {
     const symbol = String(req.params.symbol || '').toUpperCase().trim();
@@ -117,7 +127,6 @@ app.get('/api/roi/:symbol', checkToken, async (req, res) => {
     const FINNHUB_KEY = process.env.FINNHUB_API_KEY;
     if (!FINNHUB_KEY) return res.status(500).json({ msg: 'Finnhub API key não configurada' });
 
-    // Datas para o último ano
     const now = Math.floor(Date.now() / 1000);
     const oneYearAgo = now - 365 * 24 * 60 * 60;
 
@@ -134,25 +143,17 @@ app.get('/api/roi/:symbol', checkToken, async (req, res) => {
       return res.status(502).json({ msg: 'Dados insuficientes para calcular ROI' });
     }
 
-    // Preços de fechamento
     const prices = result.c.filter(p => typeof p === 'number');
     if (prices.length < 2) return res.status(502).json({ msg: 'Dados insuficientes' });
 
     const firstPrice = prices[0];
     const lastPrice = prices[prices.length - 1];
-
-    // ROI simples
     const roiSimple = ((lastPrice - firstPrice) / firstPrice) * 100;
 
-    // Ajuste pelo tempo (anos entre datas)
-    const firstDate = new Date(result.t[0] * 1000); // timestamps em segundos
+    const firstDate = new Date(result.t[0] * 1000);
     const lastDate = new Date(result.t[result.t.length - 1] * 1000);
     const years = (lastDate - firstDate) / (1000 * 60 * 60 * 24 * 365.25);
-
-    // Taxa de juros padrão (custo de capital)
     const rate = parseFloat(process.env.DEFAULT_INTEREST_RATE) / 100 || 0.2;
-
-    // ROI ajustado pelo tempo (valor presente)
     const roiAdjusted = ((lastPrice / Math.pow(1 + rate, years) - firstPrice) / firstPrice) * 100;
 
     return res.json({
@@ -172,8 +173,7 @@ app.get('/api/roi/:symbol', checkToken, async (req, res) => {
   }
 });
 
-
-// OpenAI report
+// --- OpenAI report ---
 app.post('/api/report', checkToken, async (req, res) => {
   try {
     const { prompt } = req.body;
@@ -208,17 +208,8 @@ Seja direto, linguagem empresarial, texto plano.`;
       timeout: 30000
     });
 
-    const choices = openaiRes?.data?.choices;
-    let reportText = null;
-    if (Array.isArray(choices) && choices.length) {
-      reportText = choices[0]?.message?.content || choices[0]?.delta?.content || choices[0]?.text;
-    }
-    if (!reportText && typeof openaiRes?.data?.text === 'string') reportText = openaiRes.data.text;
-
-    if (!reportText) {
-      console.error('OpenAI retornou sem texto:', JSON.stringify(openaiRes?.data, null, 2));
-      return res.status(502).json({ msg: 'Resposta inválida da OpenAI' });
-    }
+    let reportText = openaiRes?.data?.choices?.[0]?.message?.content || openaiRes?.data?.choices?.[0]?.text;
+    if (!reportText) return res.status(502).json({ msg: 'Resposta inválida da OpenAI' });
 
     // salvar histórico
     try {

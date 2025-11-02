@@ -1,224 +1,114 @@
-import React, { useState } from 'react';
-<<<<<<< HEAD
-import './Login.css'; // Reutilizando o CSS do Login (assumindo que é compartilhado)
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth } from './firebase'; // Importe a configuração do Firebase (mesma do Login)
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'; // Adicionado updateProfile à importação
-=======
-import './Login.css';
-import { useNavigate } from 'react-router-dom';
->>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3
+import { auth } from './firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
-const API_URL = 'http://localhost:3001';
+// optional: if you export firestore 'db' from ./firebase, uncomment below
+// import { db } from './firebase';
+// import { doc, setDoc } from 'firebase/firestore';
 
 export default function Cadastro() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [msg, setMsg] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setMsg('');
-    
-<<<<<<< HEAD
-    // Validações básicas (mantidas)
-=======
-    // Validações básicas
->>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3
-    if (!name || !email || !password || !confirmPassword) {
-      setMsg('Todos os campos são obrigatórios');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setMsg('As senhas não conferem');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-<<<<<<< HEAD
-      // Registro via Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // Opcional: Atualizar displayName no Firebase
-      await updateProfile(userCredential.user, { displayName: name });
-      
-      setMsg('Cadastro realizado com sucesso!');
-      // Limpa os campos após cadastro bem-sucedido
-      setName('');
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
-      // Navegue para login após sucesso
-      setTimeout(() => navigate('/login'), 2000); // Delay para mostrar mensagem
-    } catch (err) {
-      setMsg('Erro ao realizar cadastro: ' + err.message);
-=======
-      const res = await fetch(`${API_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, confirmpassword: confirmPassword })
-      });
-      
-      const data = await res.json();
-      
-      if (res.ok) {
-        setMsg('Cadastro realizado com sucesso!');
-        // Limpa os campos após cadastro bem-sucedido
-        setName('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-      } else {
-        setMsg(data.msg || 'Erro ao realizar cadastro');
-      }
-    } catch (err) {
-      setMsg('Erro de conexão com o servidor');
->>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3
-    }
-    
-    setLoading(false);
+  const friendlyError = (code, message) => {
+    if (!code) return message || 'Erro desconhecido';
+    if (code.includes('auth/email-already-in-use')) return 'E-mail já cadastrado.';
+    if (code.includes('auth/invalid-email')) return 'E-mail inválido.';
+    if (code.includes('auth/weak-password')) return 'Senha fraca. Use pelo menos 6 caracteres.';
+    return message || code;
   };
 
-  const handleGoBack = () => {
-    navigate(-1); // Volta para a página anterior
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!name.trim()) return setError('Informe seu nome.');
+    if (!email.trim()) return setError('Informe seu e-mail.');
+    if (!password || password.length < 6) return setError('Senha precisa ter ao menos 6 caracteres.');
+
+    setLoading(true);
+    try {
+      const userCred = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      // atualiza displayName no Firebase Auth
+      await updateProfile(userCred.user, { displayName: name.trim() });
+
+      // opcional: salvar perfil no Firestore se exportou db
+      // try {
+      //   await setDoc(doc(db, 'users', userCred.user.uid), {
+      //     name: name.trim(),
+      //     email: email.trim(),
+      //     createdAt: new Date().toISOString()
+      //   });
+      // } catch (e) {
+      //   console.warn('Não foi possível salvar usuário no Firestore:', e);
+      // }
+
+      // navegar para dashboard
+      navigate('/dashboard');
+    } catch (err) {
+      const code = err?.code || err?.message || '';
+      setError(friendlyError(code, err?.message));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        background: "url('/images/login.jpg') no-repeat center center",
-        backgroundSize: 'cover',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}
-    >
-      {/* Botão de voltar */}
-      <button 
-        onClick={handleGoBack}
-        style={{
-          position: 'absolute',
-          top: '20px',
-          left: '20px',
-          width: '50px',
-          height: '50px',
-          borderRadius: '50%',
-          backgroundColor: 'rgba(255, 255, 255, 0.3)',
-          border: 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backdropFilter: 'blur(5px)',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-          transition: 'all 0.3s ease'
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
-          e.target.style.transform = 'scale(1.1)';
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-          e.target.style.transform = 'scale(1)';
-        }}
-      >
-        <svg 
-          width="24" 
-          height="24" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="white" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        >
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-      </button>
+    <div style={{ maxWidth: 520, margin: '32px auto', padding: 20, fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
+      <h2>Cadastre-se</h2>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <label>
+          Nome
+          <input
+            type="text"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Seu nome"
+            required
+            style={{ width: '100%', padding: 8 }}
+          />
+        </label>
 
-      <div className="wrapper">
-        <h1>Cadastro Carbion</h1>
-        <form onSubmit={handleRegister}>
-          <div className="input-box">
-            <input
-              className="input"
-              placeholder="Nome completo"
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required
-            />
-            <i className="fa fa-user" aria-hidden="true"></i>
-          </div>
-          
-          <div className="input-box">
-            <input
-              className="input"
-              placeholder="E-mail"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-            <i className="fa fa-envelope" aria-hidden="true"></i>
-          </div>
-          
-          <div className="input-box">
-            <input
-              className="input"
-              placeholder="Senha"
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-            <i className="fa fa-lock" aria-hidden="true"></i>
-          </div>
-          
-          <div className="input-box">
-            <input
-              className="input"
-              placeholder="Confirmar senha"
-              type="password"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              required
-            />
-            <i className="fa fa-lock" aria-hidden="true"></i>
-          </div>
-          
-          <button type="submit" className="btn" disabled={loading}>
+        <label>
+          E-mail
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="email@exemplo.com"
+            required
+            style={{ width: '100%', padding: 8 }}
+          />
+        </label>
+
+        <label>
+          Senha
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Senha (mínimo 6 caracteres)"
+            required
+            style={{ width: '100%', padding: 8 }}
+          />
+        </label>
+
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button type="submit" disabled={loading} style={{ padding: '10px 16px' }}>
             {loading ? 'Cadastrando...' : 'Cadastrar'}
           </button>
-          
-          <div style={{ 
-            color: msg === 'Cadastro realizado com sucesso!' ? 'green' : 'red', 
-            marginTop: 10, 
-            textAlign: 'center' 
-          }}>
-            {msg}
-          </div>
-          
-          <div className="register-link">
-            <p>Já tem conta? <a href="/login">Faça login</a></p>
-          </div>
-        </form>
-      </div>
+          <button type="button" onClick={() => navigate('/login')} style={{ padding: '10px 16px' }}>
+            Ir para login
+          </button>
+        </div>
+
+        {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
+      </form>
     </div>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 1a3512bf17d9afa5dfcbd7899836122f5e9f0eb3
+
