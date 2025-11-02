@@ -1,156 +1,247 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+// server.js
 import dotenv from 'dotenv';
-
 dotenv.config();
+
+import express from 'express';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import cors from 'cors';
+import admin from 'firebase-admin';
+import axios from 'axios';
+import yahooFinance from 'yahoo-finance2';
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3001;
 
-//JSON config
+app.use(cors());
 app.use(express.json());
+app.use(helmet());
 
-//Models 
+// --- Firebase Admin init ---
+const serviceAccount = {
+  type: "service_account",
+  project_id: process.env.FIREBASE_PROJECT_ID,
+  private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+  private_key: process.env.FIREBASE_PRIVATE_KEY
+    ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+    : undefined,
+  client_email: process.env.FIREBASE_CLIENT_EMAIL,
+  client_id: process.env.FIREBASE_CLIENT_ID,
+  auth_uri: process.env.FIREBASE_AUTH_URI,
+  token_uri: process.env.FIREBASE_TOKEN_URI,
+  auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+  client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+};
 
-import User from './models/User.js';
-
-//open route - public route
-app.get('/', (req, res) => {
-  res.status(200).json({msg: 'bem vindo ao carbion'});
-});
-
-// private route - precisa de token
-app.get('/user/:id', checkToken, async (req, res) => {
-    const id = req.params.id;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({msg: 'ID inválido'});
-    }
-
-    const user = await User.findById(id).select('-password -__v');
-    if(!user) {
-        return res.status(404).json({msg: 'Usuário não encontrado'});
-    }
-    res.status(200).json({user});
-});
-
-function checkToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(" ")[1];
-
-    if(!token) {
-        return res.status(401).json({msg: 'Acesso negado'});
-    } 
-
-    try {
-        const secret = process.env.SECRET;
-
-        const decoded = jwt.verify(token, secret);
-        
-        req.user = decoded;
-        next();
-    } catch (error) {
-        return res.status(403).json({msg: 'Token inválido'});
-    }
+try {
+  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  console.log('Firebase Admin inicializado ✅');
+} catch (e) {
+  if (!/already exists/u.test(e.message)) console.error('Firebase init error:', e);
 }
 
-//login route
-app.post('/auth/login', async (req, res) => {
-    const {email, password} = req.body;
+const db = admin.firestore();
 
-    if(!email || !password) {
-        return res.status(400).json({msg: 'Todos os campos são obrigatórios'});
+// --- Middleware para checar token ---
+async function checkToken(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization || '';
+    const parts = authHeader.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      return res.status(401).json({ msg: 'Authorization header inválido' });
     }
+    const idToken = parts[1];
+    const decoded = await admin.auth().verifyIdToken(idToken);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    console.warn('Token verification failed:', err?.message || err);
+    return res.status(401).json({ msg: 'Token inválido ou expirado' });
+  }
+}
 
-    // checar se usuario existe
-    const user = await User 
-        .findOne({email: email})
-        .select('-__v');
-
-    if(!user) {
-        return res.status(404).json({msg: 'Usuário não encontrado'});
-    }
-
-    // checar se a senha esta correta
-    const isMatch = await bcrypt.compare(password, user.password);
-    if(!isMatch) {
-        return res.status(422).json({msg: 'Senha inválida'});
-    }
-
-    // criar token
-
-    try {
-        const secret = process.env.SECRET;
-        const token = jwt.sign(
-            {
-                id: user._id,
-            },
-            secret,
-        );
-        res.status(200).json({msg: 'Login realizado com sucesso', token});
-    } catch (error) {
-        res.status(500).json({msg: 'Erro ao gerar token'});
-    }
+// Logging simples
+app.use((req, res, next) => {
+  console.log(new Date().toISOString(), req.method, req.originalUrl);
+  next();
 });
 
+// Rate limiter
+const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200 });
+app.use(limiter);
 
-// registrar usuario
-app.post('/auth/register', async (req, res) => {
+// --- Rotas ---
+app.get('/', (req, res) => {
+  res.json({ ok: true, env: process.env.NODE_ENV || 'development' });
+});
 
-    const {name, email, password, confirmpassword} = req.body;  
+// Chart data
+app.get('/api/chart-data', checkToken, async (req, res) => {
+  try {
+    const uid = req.user.uid;
+    const snaps = await db.collection('users').doc(uid).collection('emissions')
+      .orderBy('createdAt', 'asc')
+      .limit(200)
+      .get();
 
-    //validações
-    if(!name || !email || !password || !confirmpassword) {
-        return res.status(400).json({msg: 'Todos os campos são obrigatórios'});
+    if (!snaps.empty) {
+      const data = snaps.docs.map(d => {
+        const doc = d.data();
+        const createdAt = doc.createdAt?.toDate?.() || new Date();
+        return { mes: createdAt.toISOString(), emissoes: Number(doc.co2e) || 0 };
+      });
+      return res.json(data);
     }
 
-    // validação de formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(!emailRegex.test(email)) {
-        return res.status(400).json({msg: 'E-mail inválido'});
+    // fallback: últimos 6 meses com valores aleatórios
+    const now = new Date();
+    const sample = [];
+    for (let i = 5; i >= 0; i--) {
+      const dt = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      sample.push({ mes: dt.toISOString(), emissoes: Math.round((100 + Math.random() * 200) * 100) / 100 });
+    }
+    return res.json(sample);
+  } catch (err) {
+    console.error('Erro /api/chart-data:', err);
+    return res.status(500).json({ msg: 'Erro ao buscar dados' });
+  }
+});
+
+// ROI endpoint (Yahoo Finance com ROI ajustado pelo tempo)
+app.get('/api/roi/:symbol', checkToken, async (req, res) => {
+  try {
+    const symbol = String(req.params.symbol || '').toUpperCase().trim();
+    if (!symbol) return res.status(400).json({ msg: 'Símbolo obrigatório' });
+
+    const FINNHUB_KEY = process.env.FINNHUB_API_KEY;
+    if (!FINNHUB_KEY) return res.status(500).json({ msg: 'Finnhub API key não configurada' });
+
+    // Datas para o último ano
+    const now = Math.floor(Date.now() / 1000);
+    const oneYearAgo = now - 365 * 24 * 60 * 60;
+
+    let result;
+    try {
+      const url = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=D&from=${oneYearAgo}&to=${now}&token=${FINNHUB_KEY}`;
+      const response = await axios.get(url);
+      result = response.data;
+    } catch (err) {
+      return res.status(502).json({ msg: 'Ticker inválido ou dados indisponíveis' });
     }
 
-    if(password !== confirmpassword) {
-        return res.status(400).json({msg: 'As senhas não conferem'});
+    if (!result || result.s !== 'ok' || !Array.isArray(result.c) || result.c.length < 2) {
+      return res.status(502).json({ msg: 'Dados insuficientes para calcular ROI' });
     }
 
-    // check if user exists
-    const userExists = await User.findOne({email: email});
-    if(userExists) {
-        return res.status(400).json({msg: 'Por favor, utilize outro e-mail'});
-    };
+    // Preços de fechamento
+    const prices = result.c.filter(p => typeof p === 'number');
+    if (prices.length < 2) return res.status(502).json({ msg: 'Dados insuficientes' });
 
-    // create password
-    const salt = await bcrypt.genSalt(12);
-    const passwordHash = await bcrypt.hash(password, salt);
+    const firstPrice = prices[0];
+    const lastPrice = prices[prices.length - 1];
 
+    // ROI simples
+    const roiSimple = ((lastPrice - firstPrice) / firstPrice) * 100;
 
-    // create user
-    const user = new User({
-        name,
-        email,
-        password: passwordHash
+    // Ajuste pelo tempo (anos entre datas)
+    const firstDate = new Date(result.t[0] * 1000); // timestamps em segundos
+    const lastDate = new Date(result.t[result.t.length - 1] * 1000);
+    const years = (lastDate - firstDate) / (1000 * 60 * 60 * 24 * 365.25);
+
+    // Taxa de juros padrão (custo de capital)
+    const rate = parseFloat(process.env.DEFAULT_INTEREST_RATE) / 100 || 0.2;
+
+    // ROI ajustado pelo tempo (valor presente)
+    const roiAdjusted = ((lastPrice / Math.pow(1 + rate, years) - firstPrice) / firstPrice) * 100;
+
+    return res.json({
+      symbol,
+      roiSimple: roiSimple.toFixed(2),
+      roiAdjusted: roiAdjusted.toFixed(2),
+      first: firstPrice,
+      last: lastPrice,
+      years: years.toFixed(2),
+      rate: rate * 100,
+      data: prices.reverse(),
     });
 
-    try {
-        await user.save();
-        res.status(201).json({msg: 'Usuário registrado com sucesso'});
-    } catch (error) {
-        res.status(500).json({msg: 'Erro ao registrar usuário', error: error.message});
-    }
+  } catch (err) {
+    console.error('Erro /api/roi:', err?.message || err);
+    return res.status(500).json({ msg: 'Erro interno ao buscar ROI' });
+  }
 });
 
-//credenciais
-const dbUser = process.env.DB_USER
-const dbPassword = process.env.DB_PASS
 
-mongoose.connect(`mongodb+srv://${dbUser}:${dbPassword}@cluster0.j6zsxa5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`)
-  .then(() => {
-    console.log('Conectado ao MongoDB');
-  })
-  .catch((err) => console.log(err));
+// OpenAI report
+app.post('/api/report', checkToken, async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
+      return res.status(400).json({ msg: 'Prompt obrigatório' });
+    }
 
+    const OPENAI_KEY = process.env.OPENAI_API_KEY;
+    if (!OPENAI_KEY) return res.status(500).json({ msg: 'OpenAI API key não configurada' });
+
+    const systemMessage = `Você é um assistente técnico conciso que gera:
+- Um resumo do problema descrito.
+- Sugestões práticas para reduzir emissões e melhorar ROI quando relevante.
+- 3 passos acionáveis e estimativa qualitativa de impacto.
+Seja direto, linguagem empresarial, texto plano.`;
+
+    const payload = {
+      model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: systemMessage },
+        { role: 'user', content: prompt }
+      ],
+      max_tokens: 900,
+      temperature: 0.2
+    };
+
+    const openaiRes = await axios.post('https://api.openai.com/v1/chat/completions', payload, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_KEY}`
+      },
+      timeout: 30000
+    });
+
+    const choices = openaiRes?.data?.choices;
+    let reportText = null;
+    if (Array.isArray(choices) && choices.length) {
+      reportText = choices[0]?.message?.content || choices[0]?.delta?.content || choices[0]?.text;
+    }
+    if (!reportText && typeof openaiRes?.data?.text === 'string') reportText = openaiRes.data.text;
+
+    if (!reportText) {
+      console.error('OpenAI retornou sem texto:', JSON.stringify(openaiRes?.data, null, 2));
+      return res.status(502).json({ msg: 'Resposta inválida da OpenAI' });
+    }
+
+    // salvar histórico
+    try {
+      const uid = req.user.uid;
+      await db.collection('users').doc(uid).collection('reports').add({
+        prompt,
+        report: reportText,
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (saveErr) {
+      console.warn('Não foi possível salvar relatório:', saveErr?.message || saveErr);
+    }
+
+    return res.json({ report: reportText });
+
+  } catch (err) {
+    console.error('Erro /api/report:', err.response?.data || err.message || err);
+    let msg = 'Erro ao gerar relatório via OpenAI';
+    if (err.response?.data?.error?.message) msg = err.response.data.error.message;
+    return res.status(500).json({ msg });
+  }
+});
+
+// --- Start server ---
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server running on http://localhost:${port}`);
 });
