@@ -1,19 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './Landing.css';
+import { Link as ScrollLink } from "react-scroll";
 
 export default function Home() {
   return (
     <div>
       <header>
-        <a href="#"><img src="/Images/logo.png" alt="" className="logo" /></a>
+        <Link to="/"><img src="/Images/logo.png" alt="" className="logo" /></Link>
         <nav className="headerItens">
-          <a href="/">HOME</a>
-          <a href="#">QUEM SOMOS</a>
-          <a href="#">CONTATO</a>
-          <a href="/cadastro">CADASTRE-SE</a>
+          <Link to="/" className='headerItem'>HOME</Link>
+          <ScrollLink to="sobre" smooth={true} duration={600} className='headerItem'>SOBRE</ScrollLink>
+      <ScrollLink to="contato" smooth={true} duration={600} className='headerItem'>CONTATO</ScrollLink>
+          <Link to="/cadastro" className='headerItem'>CADASTRE-SE</Link>
         </nav>
-        <Link to="/login"><input type="button" value="LOGIN" className="botaoLogin" /></Link>
+        <Link to="/login"><input type="button" value="LOGIN" className="botaoLogin headerItem"/></Link>
       </header>
 
       <section className="sec1">
@@ -23,66 +24,100 @@ export default function Home() {
           <input type="button" className="servicos" value=" serviços " />
         </div>
         <img src="/Images/infografico.png" alt="" />
-        <hr className="section_divisor" />
+        <hr color='#B6C474' className="section_divisor" />
       </section>
 
       <section className="sec2">
         <div class="sec2_introducao">
-        <h1 class="sec2_tit">Lorem</h1>
-        <p class="sec2_paragrafo">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nam alias assumenda optio sapiente officiis exercitationem ratione, vel praesentium laboriosam aut qui totam voluptates autem porro. Velit dolore rem doloribus corporis! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Illo magnam architecto, maiores ducimus nihil placeat veniam sed est, ratione exercitationem nam ad, ullam laudantium soluta! Atque laudantium aspernatur non! Vitae.</p>
+        <h1 class="sec2_tit">Sustentabilidade para sua PME</h1>
+        <p class="sec2_paragrafo">Transforme a sustentabilidade em vantagem competitiva. Com a Carbion, PMEs podem reduzir custos, otimizar processos e medir impactos ambientais de forma simples, prática e estratégica. Descubra como ações responsáveis podem gerar valor real para seu negócio, melhorar resultados e fortalecer sua presença no mercado.</p>
 </div>
-        <div className="sec2_paragrafos_unidades">
-          <hr className="mini_line_divisor" />
-          <h2>Lorem</h2>
-          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim neque porro tempora nihil aut ipsum voluptatum tempore amet eum cum, sint numquam. Maxime totam consequatur ratione inventore sapiente libero aliquam! Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam, praesentium esse laboriosam recusandae commodi accusantium vitae enim, consequatur voluptate eos maxime ipsam fuga quis aspernatur consequuntur. Corporis commodi debitis assumenda.</p>
+       
+          <div className='mini_divisor'>
+          <hr color='#B6C474' className="mini_line_divisor" />
+          <hr color='#B6C474' className="mini_line_divisor" />
+          <hr color='#B6C474' className="mini_line_divisor" />
+</div>
+<div className='sec2_mini_paragrafos'>
+   <div className="sec2_paragrafos_unidades">
+    <h1 className='numbers'>1</h1>
+          <h2 className='mini_tit' >Monitoramento eficiente</h2>
+          <p>Nossa plataforma permite acompanhar as emissões de carbono e os impactos ambientais em tempo real, fornecendo dados confiáveis que ajudam a tomar decisões inteligentes e reduzir desperdícios de recursos essenciais da operação.</p>
         </div>
         <div className="sec2_paragrafos_unidades">
-          <hr className="mini_line_divisor" />
-          <h2>Lorem</h2>
-          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim neque porro tempora nihil aut ipsum voluptatum tempore amet eum cum, sint numquam. Maxime totam consequatur ratione inventore sapiente libero aliquam! Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam, praesentium esse laboriosam recusandae commodi accusantium vitae enim, consequatur voluptate eos maxime ipsam fuga quis aspernatur consequuntur. Corporis commodi debitis assumenda.</p>
+          
+          <h1 className='numbers'>2</h1>
+          <h2 className='mini_tit'>Redução de custos</h2>
+          <p>Ao adotar práticas sustentáveis guiadas pela Carbion, PMEs economizam energia, água e materiais, otimizando processos e aumentando a produtividade sem comprometer a qualidade ou a operação diária.</p>
         </div>
         <div className="sec2_paragrafos_unidades">
-          <hr className="mini_line_divisor" />
-          <h2>Lorem</h2>
-          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Enim neque porro tempora nihil aut ipsum voluptatum tempore amet eum cum, sint numquam. Maxime totam consequatur ratione inventore sapiente libero aliquam! Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam, praesentium esse laboriosam recusandae commodi accusantium vitae enim, consequatur voluptate eos maxime ipsam fuga quis aspernatur consequuntur. Corporis commodi debitis assumenda.</p>
+          
+          <h1 className='numbers'>3</h1>
+          <h2 className='mini_tit'>Alcance suas metas ESG</h2>
+          <p>Com relatórios claros e recomendações personalizadas, PMEs atingem metas ESG de forma estratégica, fortalecendo sua reputação e mostrando compromisso com responsabilidade ambiental de maneira concreta e mensurável.</p>
         </div>
-        <img src="/Images/infografico.png" alt="teste" />
+      
+        </div>
+          <img className='img_break' src="/Images/pageBreak.svg" alt="teste" />
       </section>
 
-      <section className="sec3">
-        <hr className="section_divisor" />
-        <div className="sec3_paragrafos_">
+      <section id='sobre' className="sec3">
+        <hr className="section_divisor" color='#B6C474'/>
+        <div className="sec3_paragrafos">
           <div className="sec3_paragrafos_unidade">
-            <h3>Lorem</h3>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi rerum eius animi nostrum reprehenderit aperiam totam ab quas eligendi incidunt error ipsam hic vero, aspernatur architecto iusto, omnis accusantium optio!</p>
+            <h3>Tecnologia</h3>
+            <p>Desenvolvemos uma plataforma moderna e segura, que combina React.js, Node.js e MongoDB para oferecer uma experiência fluida, intuitiva e confiável, permitindo que PMEs tenham total controle sobre suas ações sustentáveis e dados ambientais de maneira simples e prática.</p>
+            <p>Nossa solução foi pensada para tornar a sustentabilidade acessível, ajudando cada empresa a organizar informações, monitorar resultados e implementar melhorias contínuas sem complicações ou investimentos excessivos em tecnologia.</p>
           </div>
           <div className="sec3_paragrafos_unidade">
-            <h3>Lorem</h3>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi rerum eius animi nostrum reprehenderit aperiam totam ab quas eligendi incidunt error ipsam hic vero, aspernatur architecto iusto, omnis accusantium optio!</p>
+            <h3>Resultados</h3>
+            <p>A Carbion transforma ações responsáveis em benefícios reais para os negócios, mostrando que sustentabilidade e lucratividade podem caminhar juntas. Com relatórios claros, cada dado se torna um indicador útil para tomadas de decisão estratégicas e eficientes.</p>
+            <p>Além de reduzir impactos ambientais, a plataforma ajuda PMEs a identificar oportunidades de economia e otimização de processos, tornando cada medida aplicada uma forma de gerar valor concreto e visível para clientes e colaboradores.</p>
           </div>
           <div className="sec3_paragrafos_unidade">
-            <h3>Lorem</h3>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi rerum eius animi nostrum reprehenderit aperiam totam ab quas eligendi incidunt error ipsam hic vero, aspernatur architecto iusto, omnis accusantium optio!</p>
+            <h3>Impacto real</h3>
+            
+            <p>Cada ação sustentável, por menor que seja, contribui para um mundo melhor e fortalece a reputação das PMEs. A Carbion mostra como pequenas decisões podem ter grande efeito, traduzindo responsabilidade ambiental em resultados palpáveis.</p>
+            <p>Nosso propósito é simplificar a implementação de estratégias verdes, tornando a sustentabilidade algo mensurável e acessível, ao mesmo tempo que garante que cada PME consiga crescer de forma consciente, eficiente e alinhada com o mercado.</p>
           </div>
         </div>
-        <img src="/Images/logo.png" alt="paksnd" />
+        <img src="/Images/somos.png" alt="Somos" />
       </section>
+
+        <hr className="section_divisor" color='#B6C474'/>
 
       <section className="sec4">
-        <hr className="section_divisor" />
+
+
+
+<img src="/Images/mockup.png" alt="paksnd" />
         <div className="sec4_paragrafos_">
+
           <div className="sec4_paragrafos_unidade">
-            <h3>lorem</h3>
-            <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nostrum, illo reiciendis illum voluptatibus possimus labore sequi repudiandae officia, eius nulla vel accusamus ullam quod cumque maxime dolorum sit qui atque.</p>
+
+            <h3>Visão</h3>
+            <p>Nossa plataforma oferece uma visão clara e objetiva do impacto ambiental da PME, permitindo acompanhar resultados, comparar métricas e identificar oportunidades de melhoria com rapidez e precisão em todos os setores do negócio.</p>
           </div>
+
           <div className="sec4_paragrafos_unidade">
-            <h3>lorem</h3>
-            <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nostrum, illo reiciendis illum voluptatibus possimus labore sequi repudiandae officia, eius nulla vel accusamus ullam quod cumque maxime dolorum sit qui atque.</p>
+
+            <h3>Processos</h3>
+            <p>Além de reduzir custos, a Carbion ajuda a implementar mudanças estratégicas que fortalecem processos internos, promovem eficiência operacional e geram valor contínuo para clientes, funcionários e investidores de forma sustentável.</p>
           </div>
+          
+          <div className="sec4_paragrafos_unidade">
+
+            <h3>Decisões</h3>
+            <p>Com relatórios detalhados e sugestões práticas, PMEs tomam decisões inteligentes, alcançam metas de sustentabilidade e se posicionam de forma competitiva em um mercado cada vez mais consciente, exigente e dinâmico.</p>
+          </div>
+
         </div>
+
       </section>
 
-      <hr className="section_divisor" />
+
+
+      <hr className="section_divisor"color='#B6C474' />
 
       <footer>
         <div>
