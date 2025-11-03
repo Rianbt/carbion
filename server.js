@@ -13,7 +13,7 @@ const app = express();
 const port = 3001;
 
 // --- CORS configurado corretamente ---
-const allowedOrigins = ['http://localhost:3001']; // frontend
+const allowedOrigins = ['http://localhost:3000']; // frontend
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
