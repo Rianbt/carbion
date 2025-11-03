@@ -3,10 +3,15 @@
 body {
     background-color: #FFF9CD;
     font-family: "Montserrat", sans-serif;
-    margin-left: 10%;
-    margin-right: 10%;
     margin-top: 1.5%;
+  margin: 0;
 }
+
+.container{
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
 
 header {
     display: flex;
@@ -240,9 +245,12 @@ font-size: 90%;
 
 footer {
   margin-top: 3rem;
-  padding: 2rem 0;
-  background: #f5f5e6;
+ padding-top: 3%;
+  background: #191013;
   text-align: center;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .lista1_footer, .lista2_footer, .lista3_footer {
@@ -255,14 +263,35 @@ footer {
 .lista2_footer a,
 .lista3_footer a {
   display: block;
-  color: #222;
+  color: #B6C474;
   text-decoration: none;
   margin-bottom: 0.5rem;
 }
-
+.social{
+  color: #B6C474;
+  margin-bottom: 2%;
+  margin-left: -7%;
+}
 .icons {
   margin: 1rem 0;
+  margin-left: -50%;
+  margin-top: -5%;
 }
 .icons a {
+  margin-top: 6%;
   margin: 0 0.5rem;
+}
+.footer_tit{
+   font-family: "Montserrat", sans-serif;
+  font-size: 1500%;
+  font-weight: 150;
+  color: #FFF9CD;
+}
+.folha{
+  margin-left: -10%;
+  margin-right: 13%;
+}
+
+.copyright{
+  color: #B6C474;
 }

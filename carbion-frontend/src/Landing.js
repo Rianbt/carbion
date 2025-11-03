@@ -6,6 +6,7 @@ import { Link as ScrollLink } from "react-scroll";
 export default function Home() {
   return (
     <div>
+      <div className='container'>
       <header>
         <Link to="/"><img src="/Images/logo.png" alt="" className="logo" /></Link>
         <nav className="headerItens">
@@ -118,10 +119,10 @@ export default function Home() {
 
 
       <hr className="section_divisor"color='#B6C474' />
-
+</div>
       <footer>
         <div>
-          <img src="#" alt="a" />
+          <img  className='folha' src="/images/leaf.png" alt="folha" />
           <div className="lista1_footer">
             <a href="#">Empresa</a>
             <a href="#">Sobre</a>
@@ -145,14 +146,16 @@ export default function Home() {
             <a href="#">Insformações da empresa</a>
           </div>
         </div>
-        <h3>Social</h3>
-        <div className="icons">
-          <a href="#"><img src="insta" alt="Instagram" /></a>
-          <a href="#"><img src="linkedin" alt="LinkedIn" /></a>
-          <a href="#"><img src="discord" alt="Discord" /></a>
-          <a href="#"><img src="email" alt="Email" /></a>
+          <div className="icons">
+        <h3 className='social'>Social</h3>
+      
+          <a href="#"><img src="/images/instagram.png" alt="Instagram" /></a>
+          <a href="#"><img src="/images/linkedin.png" alt="LinkedIn" /></a>
+          <a href="#"><img src="/images/discord.png" alt="Discord" /></a>
+          <a href="#"><img src="/images/email.png" alt="Email" /></a>
         </div>
-        <h1>CARBION</h1>
+        <h1 className='footer_tit' >CARBION</h1>
+        <p className='copyright'>Copyright ©2025 CARBION Todos os direitos reservados.</p>
       </footer>
     </div>
   );
